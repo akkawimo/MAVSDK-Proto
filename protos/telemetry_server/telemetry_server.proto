@@ -40,6 +40,8 @@ service TelemetryServerService {
     rpc PublishRawImu(PublishRawImuRequest) returns(PublishRawImuResponse) { option (mavsdk.options.async_type) = SYNC; }
     // Publish to 'unix epoch time' updates.
     rpc PublishUnixEpochTime(PublishUnixEpochTimeRequest) returns(PublishUnixEpochTimeResponse) { option (mavsdk.options.async_type) = SYNC; }
+    // Publish to "distance sensor" updates.
+    rpc PublishDistanceSensor(PublishDistanceSensorRequest) returns(PublishDistanceSensorResponse) { option (mavsdk.options.async_type) = SYNC; }
 }
 
 message PublishPositionRequest {
@@ -117,6 +119,10 @@ message PublishRawImuRequest {
 
 message PublishUnixEpochTimeRequest {
     uint64 time_us = 1; // The next 'unix epoch time' status
+}
+
+message PublishDistanceSensorRequest {
+
 }
 
 message PublishPositionResponse {
@@ -257,6 +263,69 @@ message GpsInfo {
      float velocity_uncertainty_m_s = 12; // Velocity uncertainty in metres per second
      float heading_uncertainty_deg = 13; // Heading uncertainty in degrees
      float yaw_deg = 14; // Yaw in earth frame from north.
+ }
+
+ message DistanceSensor {
+    enum DistanceSensorType {
+        DISTANCE_SENSOR_LASER = 0;
+        DISTANCE_SENSOR_ULTRASOUND = 1;
+        DISTANCE_SENSOR_INFRARED = 2;
+        DISTANCE_SENSOR_RADAR = 3;
+        DISTANCE_SENSOR_UNKNOWN = 4;
+    }
+
+    enum DistanceSensorOrientation {
+        DISTANCE_SENSOR_ROTATION_NONE = 0;                      // Roll: 0, Pitch: 0, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_YAW_45 = 1;                    // Roll: 0, Pitch: 0, Yaw: 45
+        DISTANCE_SENSOR_ROTATION_YAW_90 = 2;                    // Roll: 0, Pitch: 0, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_YAW_135 = 3;                   // Roll: 0, Pitch: 0, Yaw: 135
+        DISTANCE_SENSOR_ROTATION_YAW_180 = 4;                   // Roll: 0, Pitch: 0, Yaw: 180
+        DISTANCE_SENSOR_ROTATION_YAW_225 = 5;                   // Roll: 0, Pitch: 0, Yaw: 225
+        DISTANCE_SENSOR_ROTATION_YAW_270 = 6;                   // Roll: 0, Pitch: 0, Yaw: 270
+        DISTANCE_SENSOR_ROTATION_YAW_315 = 7;                   // Roll: 0, Pitch: 0, Yaw: 315
+        DISTANCE_SENSOR_ROTATION_ROLL_180 = 8;                  // Roll: 180, Pitch: 0, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_45 = 9;           // Roll: 180, Pitch: 0, Yaw: 45
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_90 = 10;          // Roll: 180, Pitch: 0, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_135 = 11;         // Roll: 180, Pitch: 0, Yaw: 135
+        DISTANCE_SENSOR_ROTATION_PITCH_180 = 12;                // Roll: 0, Pitch: 180, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_225 = 13;         // Roll: 180, Pitch: 0, Yaw: 225
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_270 = 14;         // Roll: 180, Pitch: 0, Yaw: 270
+        DISTANCE_SENSOR_ROTATION_ROLL_180_YAW_315 = 15;         // Roll: 180, Pitch: 0, Yaw: 315
+        DISTANCE_SENSOR_ROTATION_ROLL_90 = 16;                  // Roll: 90, Pitch: 0, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_90_YAW_45 = 17;           // Roll: 90, Pitch: 0, Yaw: 45
+        DISTANCE_SENSOR_ROTATION_ROLL_90_YAW_90 = 18;           // Roll: 90, Pitch: 0, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_ROLL_90_YAW_135 = 19;          // Roll: 90, Pitch: 0, Yaw: 135
+        DISTANCE_SENSOR_ROTATION_ROLL_270 = 20;                 // Roll: 270, Pitch: 0, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_270_YAW_45 = 21;          // Roll: 270, Pitch: 0, Yaw: 45
+        DISTANCE_SENSOR_ROTATION_ROLL_270_YAW_90 = 22;          // Roll: 270, Pitch: 0, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_ROLL_270_YAW_135 = 23;         // Roll: 270, Pitch: 0, Yaw: 135
+        DISTANCE_SENSOR_ROTATION_PITCH_90 = 24;                 // Roll: 0, Pitch: 90, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_PITCH_270 = 25;                // Roll: 0, Pitch: 270, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_PITCH_180_YAW_90 = 26;         // Roll: 0, Pitch: 180, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_PITCH_180_YAW_270 = 27;        // Roll: 0, Pitch: 180, Yaw: 270
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_90 = 28;         // Roll: 90, Pitch: 90, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_180_PITCH_90 = 29;        // Roll: 180, Pitch: 90, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_270_PITCH_90 = 30;        // Roll: 270, Pitch: 90, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_180 = 31;        // Roll: 90, Pitch: 180, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_270_PITCH_180 = 32;       // Roll: 270, Pitch: 180, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_270 = 33;        // Roll: 90, Pitch: 270, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_180_PITCH_270 = 34;       // Roll: 180, Pitch: 270, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_270_PITCH_270 = 35;       // Roll: 270, Pitch: 270, Yaw: 0
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_180_YAW_90 = 36; // Roll: 90, Pitch: 180, Yaw: 90
+        DISTANCE_SENSOR_ROTATION_ROLL_90_YAW_270 = 37;          // Roll: 90, Pitch: 0, Yaw: 270
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_68_YAW_293 = 38; // Roll: 90, Pitch: 68, Yaw: 293
+        DISTANCE_SENSOR_ROTATION_PITCH_315 = 39;                // Pitch: 315
+        DISTANCE_SENSOR_ROTATION_ROLL_90_PITCH_315 = 40;        // Roll: 90, Pitch: 315
+        DISTANCE_SENSOR_ROTATION_CUSTOM = 100;                  // Custom orientation
+    }
+
+    uint32 time_since_boot_ms = 1;
+    uint32 min_distance_cm = 2;
+    uint32 max_distance_cm = 3;
+    uint32 current_distance_cm = 4;
+    DistanceSensorType distance_sensor_type = 5;
+    uint32 id = 6;
+    DistanceSensorOrientation distance_sensor_orientation = 7;
  }
 
 // GPS fix type.
